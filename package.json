@@ -1,0 +1,29 @@
+{
+  "name": "twit-stream",
+  "version": "1.0.0",
+  "description": "Streaming from v2 twitter API",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "twitter",
+    "api",
+    "client",
+    "http",
+    "v2"
+  ],
+  "author": "David Young",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "needle": "^2.5.2"
+  },
+  "devDependencies": {
+    "docdash": "^1.2.0",
+    "eslint": "^7.11.0",
+    "inquirer": "^7.3.3",
+    "jsdoc": "^3.6.6",
+    "jsdoc-template-crod": "^1.0.0"
+  }
+}
