@@ -5,6 +5,11 @@
 
 ---
 
+## **Documentation**
+- [API Documentation](https://crunchwrapsupreme.github.io/twit-stream-v2/index.html)
+
+---
+
 ## **:package: Main tools used**
 
 - [x] axios
