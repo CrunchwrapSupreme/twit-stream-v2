@@ -8,11 +8,15 @@
 ## **:package: Main tools used**
 
 - [x] axios
-- [x] needle
 
 ---
 
 ## **:wrench: Developer usage**
+
+- [x] eslint
+- [x] mocha
+- [x] jsdoc
+- [x] docdash
 
 ### **Set up project**
 
@@ -26,12 +30,6 @@
 In order to install the project and all dependencies, enter in the project folder and run `npm install`
 
 ---
-
-### Start the project
-
-```bash
-npm start
-```
 
 ### Test the project
 
