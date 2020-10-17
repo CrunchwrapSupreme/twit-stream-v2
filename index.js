@@ -1,9 +1,63 @@
 const axios = require('axios');
 const EventEmitter = require('events');
-
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
-const MIN_WAIT = 1000;
 const DATA_TIMEOUT = 30000;
+
+/**
+ * Catch-all error event for connection / response issues
+ * @type {Error}
+ * @event StreamClient#error
+ */
+
+/**
+ * Triggered when stream and provides twitter error messages as JSON objects
+ * @type {Object}
+ * @event StreamClient#error-api
+ */
+
+/**
+ * Triggered on stream connection
+ * @event StreamClient#connected
+ */
+
+/**
+ * Triggered before stream reconnect and provides the wait time till reconnect
+ * @type {number}
+ * @event StreamClient#reconnecting
+ */
+
+/**
+ * Triggered when stream is reconnected
+ * @type {number}
+ * @event StreamClient#reconnected
+ */
+
+/**
+ * Triggered when manually disconnecting client stream
+ * @event StreamClient#disconnected
+ */
+
+/**
+ * Triggered upon connected stream receiving a tweet
+ * @type {Object}
+ * @event StreamClient#tweet
+ */
+
+/**
+ * Triggered upon connected stream receiving a heartbeat
+ * @event StreamClient#heartbeat
+ */
+
+/**
+ * Triggered upon stream close
+ * @event StreamClient#close
+ */
+
+/**
+ * Triggered upon connected stream receiving unexpected JSON
+ * @type {Object}
+ * @event StreamClient#other
+ */
 
 /**
  * Process error to determine if it's either an axios timeout or response stream timeout
@@ -42,37 +96,45 @@ function defaultNaN(num, def) {
 const sleep = (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)); }
 
 /**
- * Rate limits response based on last retry attempt.
+ * Calculate rate limit backoff time
  * @private
- * @param {object} resp Response object that preferably defines resp.status and resp.headers
+ * @param {Object} resp Response object that preferably defines resp.status and resp.headers
  * @param {Date} last_retry Date of previous retry attempt
- * @returns {Promise<number>} Promise that resolves to the timeout value used in rate limit
+ * @returns {number} Backout time
  */
-async function rateLimiting(resp, last_retry) {
+function rateLimiting(resp, last_retry) {
   const headers = resp.headers;
   let now = Date.now()
   let remaining = defaultNaN(parseInt(headers['x-rate-limit-remaining']), 0);
-  let ratelimit = defaultNaN(parseInt(headers['x-rate-limit-reset']), now + RATE_LIMIT_WINDOW);
+  let ratelimit = defaultNaN(parseInt(headers['x-rate-limit-reset']), (now + RATE_LIMIT_WINDOW) / 1000);
   let backoff;
   ratelimit = new Date(ratelimit * 1000);
 
-  if(resp.status >= 500) {
-    let delta = Math.min(RATE_LIMIT_WINDOW, (now - last_retry)) / RATE_LIMIT_WINDOW;
-    backoff = Math.floor((Math.log(delta + 1) + 0.3) * RATE_LIMIT_WINDOW);
-  } else if(remaining === 0 || resp.status === 429 || resp.status === 420) {
+  if(remaining === 0 || resp.status === 429 || resp.status === 420) {
     backoff = Math.min(ratelimit - now, RATE_LIMIT_WINDOW);
   } else {
-    backoff = MIN_WAIT;
+    let delta = Math.min(RATE_LIMIT_WINDOW, (now - last_retry)) / RATE_LIMIT_WINDOW;
+    backoff = Math.floor((Math.log(delta + 1) + 0.3) * RATE_LIMIT_WINDOW);
   }
 
-  await sleep(backoff);
-  return Promise.resolve(backoff);
+  return backoff;
 }
 
 /**
  * Connect to the Twitter API v2 sampled stream endpoint and emit events for processing<br/>
- * For additional information see [Twitter Sampled Stream]{@link https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction}
+ * For additional information see
+ * [Twitter Sampled Stream]{@link https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction}
  * @extends EventEmitter
+ * @fires StreamClient#tweet
+ * @fires StreamClient#connected
+ * @fires StreamClient#reconnecting
+ * @fires StreamClient#reconnected
+ * @fires StreamClient#disconnected
+ * @fires StreamClient#close
+ * @fires StreamClient#error
+ * @fires StreamClient#error-api
+ * @fires StreamClient#heartbeat
+ * @fires StreamClient#other
  */
 class StreamClient extends EventEmitter {
   /**
@@ -109,6 +171,7 @@ class StreamClient extends EventEmitter {
       {
         reconnects += 1;
         await this.buildConnection(params);
+        return Promise.resolve();
       }
       catch(request_error)
       {
@@ -117,12 +180,14 @@ class StreamClient extends EventEmitter {
           return Promise.resolve();
         } else if(isTimedout(request_error) || resp && retriableStatus(resp)) {
           this.emit('error', request_error);
-          let timeout_wait = await rateLimiting(resp, last_try);
-          this.emit('reconnect', timeout_wait);
+          let timeout_wait = rateLimiting(resp, last_try);
+          this.emit('reconnecting', timeout_wait);
+          await sleep(timeout_wait);
+          this.emit('reconnected');
         } else {
-          let error = request_error; //new Error(request_error);
+          let error = request_error;
           this.emit('error', error);
-          return Promise.reject(error);
+          return Promise.reject(request_error);
         }
       }
       last_try = Date.now();
@@ -136,11 +201,11 @@ class StreamClient extends EventEmitter {
    * @returns {boolean} Returns true if there is a request to disconnect
    */
   disconnect() {
-    if( this.cancelToken !== undefined ) {
+    if(this.cancelToken) {
       this.cancelToken.cancel('Disconnecting stream');
-      console.log('Disconnecting stream');
-      this.cancelToken = undefined;
+      this.cancelToken = null;
     }
+    this.emit('disconnected');
   }
 
   /**
@@ -149,19 +214,21 @@ class StreamClient extends EventEmitter {
    * @param {string} chunk String of data from stream
    */
   processChunk(chunk) {
-    this.chunkBuffer = this.chunkBuffer || '';
-    this.chunkBuffer += chunk.toString('utf8');
     const EOF = '\r\n';
-    let index;
+    if(this.chunkBuffer && chunk) {
+      this.chunkBuffer = Buffer.concat([this.chunkBuffer, chunk]);
+    } else if(chunk) {
+      this.chunkBuffer = chunk;
+    }
 
-    // Scan chunks for EOF terminator
-    while( (index = this.chunkBuffer.indexOf(EOF)) > -1 ) {
-      let chunk = this.chunkBuffer.slice(0, index);
+    let index;
+    while( (index = this.chunkBuffer.indexOf(EOF, 'utf8')) > -1 ) {
+      let chunk = this.chunkBuffer.toString('utf8', 0, index);
       this.chunkBuffer = this.chunkBuffer.slice(index + EOF.length);
-      if( chunk.length > 0 ) {
+      if(chunk.length > 0) {
         try {
           let json = JSON.parse(chunk);
-          if( json.data !== undefined ) {
+          if(json.data) {
             this.emit('tweet', json);
           } else if(json.errors) {
             this.emit('error-api', json)
@@ -183,7 +250,58 @@ class StreamClient extends EventEmitter {
    * @private
    */
   flush() {
-    this.chunkBuffer = '';
+    if(this.chunkBuffer) {
+      this.processChunk();
+      this.chunkBuffer = null;
+    }
+  }
+
+  /**
+   * Build Promises for handling data stream in [.buildConnection]{@link StreamClient#buildConnection}
+   * @private
+   * @returns {Promise} Promise that initiates HTTP streaming
+   */
+  buildStreamPromise(resp) {
+    return new Promise((resolve, reject) => {
+      this.emit('connected');
+      let error;
+      const hose = resp.data;
+      const hose_cleanup = () => {
+        if(!hose.destroyed) {
+          hose.destroy();
+        }
+      };
+
+      let timer = setTimeout(() => {
+        let e = new Error(`Timed out after ${this.timeout / 1000} seconds of no data`);
+        e.isTimeout = true;
+        hose.emit('error', e);
+      }, this.timeout);
+
+      this.once('disconnected', hose_cleanup);
+
+      hose.on('close', () => {
+        clearTimeout(timer);
+        this.removeListener('disconnected', hose_cleanup);
+        this.flush();
+        if(!error) {
+          this.emit('close');
+          resolve();
+        } else {
+          reject(error);
+        }
+      });
+
+      hose.on('data', data => {
+        timer.refresh();
+        this.processChunk(data);
+      });
+
+      hose.on('error', stream_error => {
+        error = stream_error;
+        hose_cleanup();
+      });
+    });
   }
 
   /**
@@ -205,66 +323,9 @@ class StreamClient extends EventEmitter {
     });
 
     return streamReq.then((resp) => {
-      return new Promise((resolve, reject) => {
-        let error;
-        let lastChunkUpdate = Date.now();
-        const hose = resp.data;
-        this.emit('connected');
-
-        setInterval(() => {
-          if(Date.now() - lastChunkUpdate > this.timeout) {
-            let e = new Error(`Timed out after ${this.timeout / 1000} seconds of no data`);
-            e.isTimeout = true;
-            hose.emit('error', e);
-          }
-        }, this.timeout);
-
-        hose.on('close', () => {
-          if( !error ) {
-            this.emit('close');
-            resolve();
-          }
-        });
-        hose.on('data', data => {
-          let now = Date.now();
-          if(now > lastChunkUpdate) {
-            lastChunkUpdate = now;
-          }
-          this.processChunk(data);
-        });
-        hose.on('error', stream_error => {
-          error = stream_error;
-          if(!hose.destroyed) {
-            hose.destroy(error);
-          }
-          reject(stream_error);
-        });
-      });
+      return this.buildStreamPromise(resp);
     });
   }
 }
 
-/* Events
-reconnect
-error
-connected
-error-api
-tweet
-other
-heartbeat
-close
-*/
-
-let stream_client = new StreamClient({
-  token: 'AAAAAAAAAAAAAAAAAAAAAGcIGQEAAAAA6feg2gwtEuzWCWBoXT5Wy3IdEsE%3D0j7C1xxyslGEE6iKZRiW0BoU7iQT6cQwix3z98IJwVqHde6sjb'
-});
-
-stream_client.on('tweet', (tweet) => console.log(tweet));
-stream_client.on('error-api', (errors) => console.log(errors));
-stream_client.on('error', (error) => console.log(error));
-stream_client.on('close', () => console.log("Client connection closed"));
-stream_client.connect().catch(() => {
-  console.log('Caught error in stream client');
-});
-
-// setTimeout(() => stream_client.disconnect(), 5000);
+module.exports = StreamClient;
