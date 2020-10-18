@@ -4,15 +4,9 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const DATA_TIMEOUT = 30000;
 
 /**
- * Catch-all error event for connection / response issues
- * @type {Error}
- * @event StreamClient#error
- */
-
-/**
  * Triggered when stream and provides twitter error messages as JSON objects
  * @type {Object}
- * @event StreamClient#error-api
+ * @event StreamClient#stream-error
  */
 
 /**
@@ -23,13 +17,7 @@ const DATA_TIMEOUT = 30000;
 /**
  * Triggered before stream reconnect and provides the wait time till reconnect
  * @type {number}
- * @event StreamClient#reconnecting
- */
-
-/**
- * Triggered when stream is reconnected
- * @type {number}
- * @event StreamClient#reconnected
+ * @event StreamClient#reconnect
  */
 
 /**
@@ -96,25 +84,32 @@ function defaultNaN(num, def) {
 const sleep = (milliseconds) => { return new Promise(resolve => setTimeout(resolve, milliseconds)); }
 
 /**
- * Calculate rate limit backoff time
+ * Calculate rate limit time in milliseconds
  * @private
  * @param {Object} resp Response object that preferably defines resp.status and resp.headers
  * @param {Date} last_retry Date of previous retry attempt
  * @returns {number} Backout time
  */
 function rateLimiting(resp, last_retry) {
-  const headers = resp.headers;
-  let now = Date.now()
-  let remaining = defaultNaN(parseInt(headers['x-rate-limit-remaining']), 0);
-  let ratelimit = defaultNaN(parseInt(headers['x-rate-limit-reset']), (now + RATE_LIMIT_WINDOW) / 1000);
-  let backoff;
-  ratelimit = new Date(ratelimit * 1000);
+  const now = Date.now()
+  const fallback_rate = now + RATE_LIMIT_WINDOW;
+  let backoff, ratelimit, remaining;
 
-  if(remaining === 0 || resp.status === 429 || resp.status === 420) {
+  if(resp && resp.headers) {
+    const headers = resp.headers;
+    remaining = defaultNaN(parseInt(headers['x-rate-limit-remaining']), 0);
+    ratelimit = defaultNaN(parseInt(headers['x-rate-limit-reset']), fallback_rate / 1000);
+    ratelimit = new Date(ratelimit * 1000);
+  } else {
+    remaining = -1;
+    ratelimit = fallback_rate;
+  }
+
+  if(remaining === 0 || resp && (resp.status === 429 || resp.status === 420)) {
     backoff = Math.min(ratelimit - now, RATE_LIMIT_WINDOW);
   } else {
     let delta = Math.min(RATE_LIMIT_WINDOW, (now - last_retry)) / RATE_LIMIT_WINDOW;
-    backoff = Math.floor((Math.log(delta + 1) + 0.3) * RATE_LIMIT_WINDOW);
+    backoff = Math.max(delta * RATE_LIMIT_WINDOW, 1000);
   }
 
   return backoff;
@@ -127,12 +122,10 @@ function rateLimiting(resp, last_retry) {
  * @extends EventEmitter
  * @fires StreamClient#tweet
  * @fires StreamClient#connected
- * @fires StreamClient#reconnecting
- * @fires StreamClient#reconnected
+ * @fires StreamClient#reconnect
  * @fires StreamClient#disconnected
  * @fires StreamClient#close
- * @fires StreamClient#error
- * @fires StreamClient#error-api
+ * @fires StreamClient#stream-error
  * @fires StreamClient#heartbeat
  * @fires StreamClient#other
  */
@@ -143,7 +136,7 @@ class StreamClient extends EventEmitter {
    * @param {number} config.timeout Set request and response timeout
    * @param {string} config.token Set [OAUTH Bearer token]{@link https://developer.twitter.com/en/docs/authentication/oauth-2-0} from developer account
    */
-  constructor({token, timeout = DATA_TIMEOUT}) {
+  constructor({token, timeout = DATA_TIMEOUT, stream_timeout = DATA_TIMEOUT}) {
     super();
     this.timeout = timeout;
     this.twitrClient = axios.create({
@@ -151,6 +144,7 @@ class StreamClient extends EventEmitter {
       headers: { 'Authorization': `Bearer ${token}`},
       timeout: timeout
     });
+    this.stream_timeout = stream_timeout;
   }
 
   /**
@@ -158,42 +152,52 @@ class StreamClient extends EventEmitter {
    * @param {Object} config Configuration for connection
    * @param {number} config.params Set any filter parameters for stream, etc.
    * @param {string} config.max_reconnects Specify max number of reconnects. Default: -1 (infinity)
-   * @returns {(Promise|Promise<Error>)} Promise that resolves on [disconnect]{@link StreamClient#disconnect}
-   * -- the Promise rejects if the number of reconnects exceeds the max or on irrecoverable error
+   * @returns {(Promise<object>|Promise<Error>)} Promise that resolves on [disconnect]{@link StreamClient#disconnect}
+   * -- the Promise rejects if the number of reconnects exceeds the max or an irrecoverable error occurs
+   * -- the Promise resolves with that last error returned. Error object defines .reconnects if reconnects are exceeded
    * @see retriableStatus
    */
   async connect({ params = {}, max_reconnects = -1 } = {}) {
-    let reconnects = 0;
+    let reconnects = -1;
     let last_try = Date.now();
+    let last_error;
+
     while(max_reconnects === -1 || reconnects <= max_reconnects)
     {
+      let disconnected = false;
       try
       {
         reconnects += 1;
-        await this.buildConnection(params);
-        return Promise.resolve();
+        disconnected = await this.buildConnection(params);
+
+        if(disconnected) {
+          Promise.resolve();
+        }
       }
       catch(request_error)
       {
+        last_error = request_error;
         let resp = request_error.response;
         if(axios.isCancel(request_error)) {
           return Promise.resolve();
+        } else if(max_reconnects !== -1 && reconnects >= max_reconnects) {
+          break;
         } else if(isTimedout(request_error) || resp && retriableStatus(resp)) {
-          this.emit('error', request_error);
           let timeout_wait = rateLimiting(resp, last_try);
-          this.emit('reconnecting', timeout_wait);
+          this.emit('reconnect', request_error, timeout_wait);
           await sleep(timeout_wait);
-          this.emit('reconnected');
         } else {
-          let error = request_error;
-          this.emit('error', error);
-          return Promise.reject(request_error);
+          let error = new Error(`${request_error.message}`);
+          return Promise.reject(error);
         }
       }
+
       last_try = Date.now();
     }
 
-    return Promise.reject(new Error(`Max reconnects exceeded (${reconnects})`));
+    let reject_error = new Error(`Max reconnects exceeded (${reconnects}):\n${last_error.message}`);
+    reject_error.reconnects = reconnects;
+    return Promise.reject(reject_error);
   }
 
   /**
@@ -231,13 +235,13 @@ class StreamClient extends EventEmitter {
           if(json.data) {
             this.emit('tweet', json);
           } else if(json.errors) {
-            this.emit('error-api', json)
+            this.emit('stream-error', json);
           } else {
             this.emit('other', json);
           }
         } catch(json_error) {
           json_error.source = chunk;
-          this.emit('error', json_error);
+          this.emit('stream-error', json_error);
         }
       } else {
         this.emit('heartbeat');
@@ -265,6 +269,7 @@ class StreamClient extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.emit('connected');
       let error;
+      let disconnected = false;
       const hose = resp.data;
       const hose_cleanup = () => {
         if(!hose.destroyed) {
@@ -273,12 +278,15 @@ class StreamClient extends EventEmitter {
       };
 
       let timer = setTimeout(() => {
-        let e = new Error(`Timed out after ${this.timeout / 1000} seconds of no data`);
+        let e = new Error(`Timed out after ${this.stream_timeout / 1000} seconds of no data`);
         e.isTimeout = true;
         hose.emit('error', e);
-      }, this.timeout);
+      }, this.stream_timeout);
 
-      this.once('disconnected', hose_cleanup);
+      this.once('disconnected', () => {
+        disconnected = true;
+        hose_cleanup();
+      });
 
       hose.on('close', () => {
         clearTimeout(timer);
@@ -286,9 +294,7 @@ class StreamClient extends EventEmitter {
         this.flush();
         if(!error) {
           this.emit('close');
-          resolve();
-        } else {
-          reject(error);
+          resolve(disconnected);
         }
       });
 
@@ -300,6 +306,7 @@ class StreamClient extends EventEmitter {
       hose.on('error', stream_error => {
         error = stream_error;
         hose_cleanup();
+        reject(error);
       });
     });
   }

@@ -8,29 +8,28 @@ describe('StreamClient', function() {
     it('should process a chunk of tweet JSON and emit a tweet event', function(done) {
       let client = new StreamClient({token: 'abcdef'});
       client.on('tweet', () => done());
-      client.on('error', (e) => done(e));
+      client.on('stream-error', (e) => done(e));
       client.processChunk(Buffer.from(`{"data": {"test":"dave"}}\r\n`));
     });
 
-    it('should process a chunk of invalid JSON and emit an error event', function(done) {
+    it('should process a chunk of invalid JSON and emit an stream-error event', function(done) {
       let client = new StreamClient({token: 'abcdef'});
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
-      client.on('error', () => done());
+      client.on('stream-error', () => done());
       client.processChunk(Buffer.from(`{"data": "test":"dave"}}\r\n`));
     });
 
-    it('should process a chunk of error JSON and emit an error-api event', function(done) {
+    it('should process a chunk of error JSON and emit an stream-error event', function(done) {
       let client = new StreamClient({token: 'abcdef'});
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
-      client.on('error', (e) => done(e));
-      client.on('error-api', () => done());
+      client.on('stream-error', () => done());
       client.processChunk(Buffer.from(`{"errors": {"test":"dave"}}\r\n`));
     });
 
-    it('should process a chunk of unknown JSON and emit an error-api event', function(done) {
+    it('should process a chunk of unknown JSON and emit an stream-error event', function(done) {
       let client = new StreamClient({token: 'abcdef'});
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
-      client.on('error', (e) => done(e));
+      client.on('stream-error', (e) => done(e));
       client.on('other', () => done());
       client.processChunk(Buffer.from(`{"other": {"test":"dave"}}\r\n`));
     });
@@ -38,7 +37,7 @@ describe('StreamClient', function() {
     it('should process a heartneat and emit a heartbeat event', function(done) {
       let client = new StreamClient({token: 'abcdef'});
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
-      client.on('error', (e) => done(e));
+      client.on('stream-error', (e) => done(e));
       client.on('heartbeat', () => done());
       client.processChunk(Buffer.from(`\r\n`));
     });
@@ -94,8 +93,53 @@ describe('StreamClient', function() {
   });
 
   describe('#connect({ params: object, max_connects: number})', function() {
-    it('should reject after max_connects attempts');
-    it('should resolve on disconnect');
-    it('should reject on unretriable error');
+    it('should reject after max_reconnects attempts', function(done) {
+      let client = new StreamClient({
+        token: 'abcdef',
+        timeout: 1
+      });
+
+      client.connect({max_reconnects: 1}).catch((error) => {
+        if(error.reconnects) {
+          done();
+        } else {
+          done(error);
+        }
+      });
+    });
+
+    it('should resolve on disconnect', function(done) {
+      let client = new StreamClient({
+        token: 'abcdef',
+        timeout: 1000
+      });
+
+      client.connect({max_reconnects: 1})
+        .then(() => done())
+        .catch((error) => done(error));
+
+      client.disconnect();
+    });
+
+    it('should reject on unretriable error', function(done) {
+      let client = new StreamClient({
+        token: 'abcdef',
+        timeout: 1000
+      });
+
+      client.buildConnection = () => {
+        let error_fake = new Error();
+        error_fake.status = 401;
+        return Promise.reject(error_fake);
+      };
+
+      client.connect({max_reconnects: 1}).catch((error) => {
+        if(error.reconnects) {
+          done(error);
+        } else {
+          done();
+        }
+      });
+    });
   });
 });
