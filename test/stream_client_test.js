@@ -1,3 +1,5 @@
+/* eslint-disable max-lines-per-function */
+/* eslint-disable func-names */
 const StreamClient = require('../index');
 const JParseStream = require('../lib/parse_stream');
 const PassThroughStream = require('stream').PassThrough;
