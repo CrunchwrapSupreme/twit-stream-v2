@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>lib/parse_stream.js - Documentation</title>
     
     <meta name="description" content="Implementation of the v2 twitter streaming api" />
     
@@ -40,86 +40,103 @@
 
 <div id="main">
     
+    <h1 class="page-title">lib/parse_stream.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { Transform } = require('stream');
+const MAX_BUFFER_SIZE = 1024 * 10;
 
+class TweetStreamParser extends Transform {
+  constructor(options) {
+    super({
+      ...options,
+      readableObjectMode: true
+    });
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
+    if(options) {
+      this.emitr = options.emitter;
+      this.timer = options.timer;
+    }
+    this.emitr = this.emitr || this;
+  }
 
+  parseJSON() {
+    const EOF = '\r\n';
+    const emitter = this.emitr;
+    let error, index;
+    while( (index = this.chunkBuffer.indexOf(EOF, 'utf8')) > -1 ) {
+      let chunk = this.chunkBuffer.toString('utf8', 0, index);
+      this.chunkBuffer = this.chunkBuffer.slice(index + EOF.length);
+      if(chunk.length > 0) {
+        try {
+          let json = JSON.parse(chunk);
+          if(json.data) {
+            emitter.emit('tweet', json);
+            this.push(json);
+          } else if(json.errors) {
+            emitter.emit('api-errors', json);
+          } else {
+            emitter.emit('other', json);
+          }
+        } catch(json_error) {
+          json_error.source = chunk;
+          error = json_error;
+          this.emit('stream-error', error);
+        }
+      } else {
+        emitter.emit('heartbeat');
+      }
+    }
 
+    //return error;
+  }
 
+  _transform(chunk, encoding, callback) {
+    this.encoding = encoding;
+    let op_error;
+    if(this.chunkBuffer &amp;&amp; this.chunkBuffer.length + chunk.length &lt; MAX_BUFFER_SIZE) {
+      const err_info = {
+        lastChunk: chunk,
+        buffer: this.chunkBuffer,
+        max_size_b: MAX_BUFFER_SIZE
+      };
+      op_error = new Error(`Stream overproducing tweet data\n${err_info}`);
+    } else if(this.chunkBuffer &amp;&amp; chunk) {
+      this.chunkBuffer = Buffer.concat([this.chunkBuffer, chunk]);
+    } else if(chunk) {
+      this.chunkBuffer = chunk;
+    }
+    let parse_error = this.parseJSON();
+    if(this.timer) {
+      this.timer.refresh();
+    }
+    return callback(op_error || parse_error);
+  }
 
+  /**
+   * Clear the chunk buffer
+   */
+  _flush(callback) {
+    let error;
+    if(this.chunkBuffer) {
+      error = this.parseJSON();
+      this.chunkBuffer = null;
+    }
+    return callback(error);
+  }
+}
 
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><h1><strong>:triangular_flag_on_post: TWIT-STREAM</strong> (version 1.0.0)</h1>
-<blockquote>
-<p>Streaming from v2 twitter API</p>
-</blockquote>
-<hr>
-<h2><strong>Documentation</strong></h2>
-<ul>
-<li><a href="https://crunchwrapsupreme.github.io/twit-stream-v2/index.html">API Documentation</a></li>
-</ul>
-<hr>
-<h2><strong>:package: Main tools used</strong></h2>
-<ul>
-<li>[x] axios</li>
-</ul>
-<hr>
-<h2><strong>:wrench: Developer usage</strong></h2>
-<ul>
-<li>[x] eslint</li>
-<li>[x] mocha</li>
-<li>[x] jsdoc</li>
-<li>[x] docdash</li>
-</ul>
-<h3><strong>Set up project</strong></h3>
-<ul>
-<li>Choose a folder project in your system and switch in <code>cd [folder path]</code></li>
-<li>Clone the repo in your folder path</li>
-</ul>
-<hr>
-<h3><strong>Installation</strong></h3>
-<p>In order to install the project and all dependencies, enter in the project folder and run <code>npm install</code></p>
-<hr>
-<h3>Test the project</h3>
-<pre class="prettyprint source lang-bash"><code>npm test
+module.exports = TweetStreamParser;
 </code></pre>
-<hr>
-<h2><strong>:handshake: Contributing</strong></h2>
-<ul>
-<li>Fork it!</li>
-<li>Create your feature branch: <code>git checkout -b my-new-feature</code></li>
-<li>Commit your changes: <code>git commit -am 'Add some feature'</code></li>
-<li>Push to the branch: <code>git push origin my-new-feature</code></li>
-<li>Submit a pull request</li>
-</ul>
-<hr>
-<h3><strong>:heart: Show your support</strong></h3>
-<p>Please :star: this repository if you like it or this project helped you!<br>
-Feel free to open issues or submit pull-requests to help me improving my work.</p>
-<hr>
-<h3><strong>:robot: Author</strong></h3>
-<p><em><em>David Young</em></em></p>
-<hr>
-<p>Copyright © 2020 David Young</p></article>
+        </article>
     </section>
-
-
 
 
 

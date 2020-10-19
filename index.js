@@ -6,27 +6,6 @@ const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const DATA_TIMEOUT = 30000;
 
 /**
- * Triggered on stream connection
- * @event StreamClient#connected
- */
-
-/**
- * Triggered before stream reconnect and provides the wait time till reconnect
- * @type {number}
- * @event StreamClient#reconnect
- */
-
-/**
- * Triggered when manually disconnecting client stream
- * @event StreamClient#disconnected
- */
-
-/**
- * Triggered upon stream close
- * @event StreamClient#close
- */
-
-/**
  * Process error to determine if it's either an axios timeout or response stream timeout
  * @private
  */

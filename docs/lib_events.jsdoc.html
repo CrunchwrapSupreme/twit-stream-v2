@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>lib/events.jsdoc - Documentation</title>
     
     <meta name="description" content="Implementation of the v2 twitter streaming api" />
     
@@ -40,86 +40,67 @@
 
 <div id="main">
     
+    <h1 class="page-title">lib/events.jsdoc</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Triggered upon connected stream receiving a tweet
+ * @type {Object}
+ * @event StreamClient#tweet
+ */
 
+/**
+ * Triggered upon connected stream receiving a heartbeat
+ * @event StreamClient#heartbeat
+ */
 
-    <section class="package">
-        <h3> </h3>		
+/**
+ * Triggered when on api-level stream errors (misformatted JSON, etc.)
+ * @type {Object}
+ * @event StreamClient#stream-error
+ */
+
+/**
+ * Provides twitter error messages as JSON objects
+ * @type {Object}
+ * @event StreamClient#api-errors
+ */
+
+/**
+ * Triggered upon connected stream receiving unexpected JSON
+ * @type {Object}
+ * @event StreamClient#other
+ */
+
+/**
+ * Triggered on stream connection
+ * @event StreamClient#connected
+ */
+
+/**
+ * Triggered before stream reconnect and provides the wait time till reconnect
+ * @type {number}
+ * @event StreamClient#reconnect
+ */
+
+/**
+ * Triggered when manually disconnecting client stream
+ * @event StreamClient#disconnected
+ */
+
+/**
+ * Triggered upon stream close
+ * @event StreamClient#close
+ */</code></pre>
+        </article>
     </section>
-
-
-
-
-
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><h1><strong>:triangular_flag_on_post: TWIT-STREAM</strong> (version 1.0.0)</h1>
-<blockquote>
-<p>Streaming from v2 twitter API</p>
-</blockquote>
-<hr>
-<h2><strong>Documentation</strong></h2>
-<ul>
-<li><a href="https://crunchwrapsupreme.github.io/twit-stream-v2/index.html">API Documentation</a></li>
-</ul>
-<hr>
-<h2><strong>:package: Main tools used</strong></h2>
-<ul>
-<li>[x] axios</li>
-</ul>
-<hr>
-<h2><strong>:wrench: Developer usage</strong></h2>
-<ul>
-<li>[x] eslint</li>
-<li>[x] mocha</li>
-<li>[x] jsdoc</li>
-<li>[x] docdash</li>
-</ul>
-<h3><strong>Set up project</strong></h3>
-<ul>
-<li>Choose a folder project in your system and switch in <code>cd [folder path]</code></li>
-<li>Clone the repo in your folder path</li>
-</ul>
-<hr>
-<h3><strong>Installation</strong></h3>
-<p>In order to install the project and all dependencies, enter in the project folder and run <code>npm install</code></p>
-<hr>
-<h3>Test the project</h3>
-<pre class="prettyprint source lang-bash"><code>npm test
-</code></pre>
-<hr>
-<h2><strong>:handshake: Contributing</strong></h2>
-<ul>
-<li>Fork it!</li>
-<li>Create your feature branch: <code>git checkout -b my-new-feature</code></li>
-<li>Commit your changes: <code>git commit -am 'Add some feature'</code></li>
-<li>Push to the branch: <code>git push origin my-new-feature</code></li>
-<li>Submit a pull request</li>
-</ul>
-<hr>
-<h3><strong>:heart: Show your support</strong></h3>
-<p>Please :star: this repository if you like it or this project helped you!<br>
-Feel free to open issues or submit pull-requests to help me improving my work.</p>
-<hr>
-<h3><strong>:robot: Author</strong></h3>
-<p><em><em>David Young</em></em></p>
-<hr>
-<p>Copyright © 2020 David Young</p></article>
-    </section>
-
-
 
 
 

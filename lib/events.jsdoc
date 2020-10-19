@@ -1,0 +1,49 @@
+/**
+ * Triggered upon connected stream receiving a tweet
+ * @type {Object}
+ * @event StreamClient#tweet
+ */
+
+/**
+ * Triggered upon connected stream receiving a heartbeat
+ * @event StreamClient#heartbeat
+ */
+
+/**
+ * Triggered when on api-level stream errors (misformatted JSON, etc.)
+ * @type {Object}
+ * @event StreamClient#stream-error
+ */
+
+/**
+ * Provides twitter error messages as JSON objects
+ * @type {Object}
+ * @event StreamClient#api-errors
+ */
+
+/**
+ * Triggered upon connected stream receiving unexpected JSON
+ * @type {Object}
+ * @event StreamClient#other
+ */
+
+/**
+ * Triggered on stream connection
+ * @event StreamClient#connected
+ */
+
+/**
+ * Triggered before stream reconnect and provides the wait time till reconnect
+ * @type {number}
+ * @event StreamClient#reconnect
+ */
+
+/**
+ * Triggered when manually disconnecting client stream
+ * @event StreamClient#disconnected
+ */
+
+/**
+ * Triggered upon stream close
+ * @event StreamClient#close
+ */

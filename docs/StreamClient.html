@@ -5,6 +5,12 @@
     <meta charset="utf-8">
     <title>StreamClient - Documentation</title>
     
+    <meta name="description" content="Implementation of the v2 twitter streaming api" />
+    
+        <meta name="keywords" content="twitter api v2 node.js rest http stream client" />
+        <meta name="keyword" content="twitter api v2 node.js rest http stream client" />
+    
+    
     
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +33,9 @@
 
 <nav >
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="StreamClient.html">StreamClient</a><ul class='methods'><li data-type='method'><a href="StreamClient.html#buildConnection">buildConnection</a></li><li data-type='method'><a href="StreamClient.html#buildStreamPromise">buildStreamPromise</a></li><li data-type='method'><a href="StreamClient.html#connect">connect</a></li><li data-type='method'><a href="StreamClient.html#disconnect">disconnect</a></li><li data-type='method'><a href="StreamClient.html#flush">flush</a></li><li data-type='method'><a href="StreamClient.html#processChunk">processChunk</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="StreamClient.html#event:close">close</a></li><li><a href="StreamClient.html#event:connected">connected</a></li><li><a href="StreamClient.html#event:disconnected">disconnected</a></li><li><a href="StreamClient.html#event:error">error</a></li><li><a href="StreamClient.html#event:error-api">error-api</a></li><li><a href="StreamClient.html#event:heartbeat">heartbeat</a></li><li><a href="StreamClient.html#event:other">other</a></li><li><a href="StreamClient.html#event:reconnected">reconnected</a></li><li><a href="StreamClient.html#event:reconnecting">reconnecting</a></li><li><a href="StreamClient.html#event:tweet">tweet</a></li></ul><h3>Global</h3><ul><li><a href="global.html#defaultNaN">defaultNaN</a></li><li><a href="global.html#isTimedout">isTimedout</a></li><li><a href="global.html#rateLimiting">rateLimiting</a></li><li><a href="global.html#retriableStatus">retriableStatus</a></li><li><a href="global.html#sleep">sleep</a></li></ul>
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/CrunchwrapSupreme/twit-stream-v2" target="_blank" class="menu-item" id="website_link" >Github Repo</a></h2><h3>Classes</h3><ul><li><a href="StreamClient.html">StreamClient</a><ul class='methods'><li data-type='method'><a href="StreamClient.html#connect">connect</a></li><li data-type='method'><a href="StreamClient.html#disconnect">disconnect</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="StreamClient.html#event:tweet">tweet</a></li><li><a href="StreamClient.html#event:heartbeat">heartbeat</a></li><li><a href="StreamClient.html#event:stream-error">stream-error</a></li><li><a href="StreamClient.html#event:api-errors">api-errors</a></li><li><a href="StreamClient.html#event:other">other</a></li><li><a href="StreamClient.html#event:connected">connected</a></li><li><a href="StreamClient.html#event:reconnect">reconnect</a></li><li><a href="StreamClient.html#event:disconnected">disconnected</a></li><li><a href="StreamClient.html#event:close">close</a></li></ul>
 </nav>
 
 <div id="main">
@@ -48,9 +56,9 @@
         StreamClient
         </h2>
         
-            <div class="class-description usertext">Connect to the Twitter API v2 sampled stream endpoint and emit events for processing<br/>
+            <div class="class-description usertext"><p>Connect to the Twitter API v2 sampled stream endpoint and emit events for processing<br/>
 For additional information see
-<a href="https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction">Twitter Sampled Stream</a></div>
+<a href="https://developer.twitter.com/en/docs/twitter-api/tweets/sampled-stream/introduction">Twitter Sampled Stream</a></p></div>
         
     
 </header>
@@ -77,7 +85,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line139">line 139</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -117,7 +125,7 @@ For additional information see
 
 
 <div class="description usertext">
-    Initializes the client
+    <p>Initializes the client</p>
 </div>
 
 
@@ -171,7 +179,7 @@ For additional information see
 
             
 
-            <td class="description last">Configuration for client
+            <td class="description last"><p>Configuration for client</p>
                 <h6>Properties</h6>
                 
 
@@ -213,7 +221,7 @@ For additional information see
 
             
 
-            <td class="description last">Set request and response timeout</td>
+            <td class="description last"><p>Set request and response timeout</p></td>
         </tr>
 
     
@@ -236,7 +244,7 @@ For additional information see
 
             
 
-            <td class="description last">Set <a href="https://developer.twitter.com/en/docs/authentication/oauth-2-0">OAUTH Bearer token</a> from developer account</td>
+            <td class="description last"><p>Set <a href="https://developer.twitter.com/en/docs/authentication/oauth-2-0">OAUTH Bearer token</a> from developer account</p></td>
         </tr>
 
     
@@ -261,17 +269,15 @@ For additional information see
 
     <li><a href="StreamClient.html#event:connected">StreamClient#event:connected</a></li>
 
-    <li><a href="StreamClient.html#event:reconnecting">StreamClient#event:reconnecting</a></li>
-
-    <li><a href="StreamClient.html#event:reconnected">StreamClient#event:reconnected</a></li>
+    <li><a href="StreamClient.html#event:reconnect">StreamClient#event:reconnect</a></li>
 
     <li><a href="StreamClient.html#event:disconnected">StreamClient#event:disconnected</a></li>
 
     <li><a href="StreamClient.html#event:close">StreamClient#event:close</a></li>
 
-    <li><a href="StreamClient.html#event:error">StreamClient#event:error</a></li>
+    <li><a href="StreamClient.html#event:stream-error">StreamClient#event:stream-error</a></li>
 
-    <li><a href="StreamClient.html#event:error-api">StreamClient#event:error-api</a></li>
+    <li><a href="StreamClient.html#event:api-errors">StreamClient#event:api-errors</a></li>
 
     <li><a href="StreamClient.html#event:heartbeat">StreamClient#event:heartbeat</a></li>
 
@@ -328,7 +334,7 @@ For additional information see
 
     
 
-    <h4 class="name" id="buildConnection"><span class="type-signature">(private) </span>buildConnection<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="connect"><span class="type-signature">(async) </span>connect<span class="signature">(config)</span><span class="type-signature"> &rarr; {Promise.&lt;object>|Promise.&lt;Error>}</span></h4>
 
     
 
@@ -340,226 +346,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line313">line 313</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Connect to twitter stream and emit events. Errors unhandled.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Promise that resolves on <a href="StreamClient.html#disconnect">disconnect</a>
--- the Promise chain is unhandled so consider using <a href="StreamClient.html#connect">.connect</a>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="buildStreamPromise"><span class="type-signature">(private) </span>buildStreamPromise<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line264">line 264</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Build Promises for handling data stream in <a href="StreamClient.html#buildConnection">.buildConnection</a>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Promise that initiates HTTP streaming
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="connect"><span class="type-signature">(async) </span>connect<span class="signature">(config)</span><span class="type-signature"> &rarr; {Promise|Promise.&lt;Error>}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line165">line 165</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line120">line 120</a>
     </li></ul></dd>
     
 
@@ -593,7 +380,7 @@ For additional information see
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="global.html#retriableStatus">retriableStatus</a></li>
+            <li>retriableStatus</li>
         </ul>
     </dd>
     
@@ -606,7 +393,7 @@ For additional information see
 
 
 <div class="description usertext">
-    Connect to twitter stream and emit events.
+    <p>Connect to twitter stream and emit events.</p>
 </div>
 
 
@@ -660,7 +447,7 @@ For additional information see
 
             
 
-            <td class="description last">Configuration for connection
+            <td class="description last"><p>Configuration for connection</p>
                 <h6>Properties</h6>
                 
 
@@ -702,7 +489,7 @@ For additional information see
 
             
 
-            <td class="description last">Set any filter parameters for stream, etc.</td>
+            <td class="description last"><p>Set any filter parameters for stream, etc.</p></td>
         </tr>
 
     
@@ -725,7 +512,7 @@ For additional information see
 
             
 
-            <td class="description last">Specify max number of reconnects. Default: -1 (infinity)</td>
+            <td class="description last"><p>Specify max number of reconnects. Default: -1 (infinity)</p></td>
         </tr>
 
     
@@ -758,8 +545,9 @@ For additional information see
 
         
 <div class="param-desc">
-    Promise that resolves on <a href="StreamClient.html#disconnect">disconnect</a>
--- the Promise rejects if the number of reconnects exceeds the max or on irrecoverable error
+    <p>Promise that resolves on <a href="StreamClient.html#disconnect">disconnect</a>
+-- the Promise rejects if the number of reconnects exceeds the max or an irrecoverable error occurs
+-- the Promise resolves with that last error returned. Error object defines .reconnects if reconnects are exceeded</p>
 </div>
 
 
@@ -770,7 +558,7 @@ For additional information see
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type">Promise.&lt;object></span>
 |
 
 <span class="param-type">Promise.&lt;Error></span>
@@ -800,7 +588,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line203">line 203</a>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line167">line 167</a>
     </li></ul></dd>
     
 
@@ -840,7 +628,7 @@ For additional information see
 
 
 <div class="description usertext">
-    Disconnects an active request if any
+    <p>Disconnects an active request if any</p>
 </div>
 
 
@@ -871,7 +659,7 @@ For additional information see
 
         
 <div class="param-desc">
-    Returns true if there is a request to disconnect
+    <p>Returns true if there is a request to disconnect</p>
 </div>
 
 
@@ -893,229 +681,6 @@ For additional information see
 
 
         
-            
-
-    
-
-    <h4 class="name" id="flush"><span class="type-signature">(private) </span>flush<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line252">line 252</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Clear the chunk buffer
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="processChunk"><span class="type-signature">(private) </span>processChunk<span class="signature">(chunk)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line216">line 216</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Emits data from twitter stream after retreiving chunk
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chunk</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">String of data from stream</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
     
 
     
@@ -1128,7 +693,7 @@ For additional information see
 
     
 
-    <h4 class="name" id="event:close">close</h4>
+    <h4 class="name" id="event:tweet">tweet</h4>
 
     
 
@@ -1140,7 +705,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line51">line 51</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -1180,365 +745,7 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered upon stream close
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="event:connected">connected</h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Triggered on stream connection
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="event:disconnected">disconnected</h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line35">line 35</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Triggered when manually disconnecting client stream
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="event:error">error</h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line6">line 6</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Catch-all error event for connection / response issues
-</div>
-
-
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Error</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="event:error-api">error-api</h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line12">line 12</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Triggered when stream and provides twitter error messages as JSON objects
+    <p>Triggered upon connected stream receiving a tweet</p>
 </div>
 
 
@@ -1595,7 +802,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line46">line 46</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -1635,12 +842,206 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered upon connected stream receiving a heartbeat
+    <p>Triggered upon connected stream receiving a heartbeat</p>
 </div>
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="event:stream-error">stream-error</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line12">line 12</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Triggered when on api-level stream errors (misformatted JSON, etc.)</p>
+</div>
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="event:api-errors">api-errors</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line18">line 18</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Provides twitter error messages as JSON objects</p>
+</div>
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
 
 
 
@@ -1682,7 +1083,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line56">line 56</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line24">line 24</a>
     </li></ul></dd>
     
 
@@ -1722,7 +1123,7 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered upon connected stream receiving unexpected JSON
+    <p>Triggered upon connected stream receiving unexpected JSON</p>
 </div>
 
 
@@ -1767,7 +1168,7 @@ For additional information see
 
     
 
-    <h4 class="name" id="event:reconnected">reconnected</h4>
+    <h4 class="name" id="event:connected">connected</h4>
 
     
 
@@ -1779,7 +1180,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line29">line 29</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -1819,7 +1220,94 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered when stream is reconnected
+    <p>Triggered on stream connection</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="event:reconnect">reconnect</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line35">line 35</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    <p>Triggered before stream reconnect and provides the wait time till reconnect</p>
 </div>
 
 
@@ -1864,7 +1352,7 @@ For additional information see
 
     
 
-    <h4 class="name" id="event:reconnecting">reconnecting</h4>
+    <h4 class="name" id="event:disconnected">disconnected</h4>
 
     
 
@@ -1876,7 +1364,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line23">line 23</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -1916,22 +1404,12 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered before stream reconnect and provides the wait time till reconnect
+    <p>Triggered when manually disconnecting client stream</p>
 </div>
 
 
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">number</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -1961,7 +1439,7 @@ For additional information see
 
     
 
-    <h4 class="name" id="event:tweet">tweet</h4>
+    <h4 class="name" id="event:close">close</h4>
 
     
 
@@ -1973,7 +1451,7 @@ For additional information see
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line40">line 40</a>
+        <a href="lib_events.jsdoc.html">lib/events.jsdoc</a>, <a href="lib_events.jsdoc.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -2013,22 +1491,12 @@ For additional information see
 
 
 <div class="description usertext">
-    Triggered upon connected stream receiving a tweet
+    <p>Triggered upon stream close</p>
 </div>
 
 
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Object</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -2069,12 +1537,14 @@ For additional information see
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Sat Oct 17 2020 04:46:26 GMT-0500 (Central Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Mon Oct 19 2020 05:12:10 GMT-0500 (Central Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
 <script src="scripts/polyfill.js"></script>
 <script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
 
 
 

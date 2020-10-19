@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "build-docs": "jsdoc index.js -p -t node_modules/docdash -d docs"
+    "build:docs": "jsdoc -c .jsdoc.json"
   },
   "keywords": [
     "twitter",

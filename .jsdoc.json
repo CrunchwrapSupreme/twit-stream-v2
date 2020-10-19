@@ -1,0 +1,36 @@
+{
+  "source": {
+    "include": [
+      "./lib/parse_stream.js",
+      "./lib/events.jsdoc",
+      "./index.js"
+    ]
+  },
+  "opts": {
+    "template": "./node_modules/docdash",
+    "encoding": "utf8",
+    "destination": "./docs/",
+    "readme": "./README.md"
+  },
+  "templates": {
+    "cleverlinks": true
+  },
+  "sourceType": "module",
+  "plugins": ["plugins/markdown"],
+  "docdash": {
+    "menu": {
+      "Github Repo": {
+        "href":"https://github.com/CrunchwrapSupreme/twit-stream-v2",
+        "target":"_blank",
+        "class":"menu-item",
+        "id":"website_link"
+      }
+    },
+    "search": true,
+    "sort": false,
+    "meta": {
+      "description": "Implementation of the v2 twitter streaming api",
+      "keyword": "twitter api v2 node.js rest http stream client"
+    }
+  }
+}
