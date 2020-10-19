@@ -4,7 +4,10 @@
     "node": true,
     "mocha": true
   },
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:mocha/recommended"
+  ],
   "parserOptions": {
     "ecmaVersion": 12
   },
@@ -62,7 +65,7 @@
     "default-case": "error",
     "default-case-last": "error",
     "default-param-last": "error",
-    "dot-location": "error",
+    "dot-location": "off",
     "dot-notation": [
       "error",
       {
