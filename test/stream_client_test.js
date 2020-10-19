@@ -1,55 +1,61 @@
 const StreamClient = require('../index');
+const JParseStream = require('../lib/parse_stream');
 const PassThroughStream = require('stream').PassThrough;
 
 describe('StreamClient', function() {
   this.timeout(10000);
 
-  describe('#processChunk(chunk)', function() {
+  describe('#parseJSON(chunk)', function() {
     it('should process a chunk of tweet JSON and emit a tweet event', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
+      let stream = new PassThroughStream();
+      let client = new JParseStream();
+      stream.pipe(client);
       client.on('tweet', () => done());
       client.on('stream-error', (e) => done(e));
-      client.processChunk(Buffer.from(`{"data": {"test":"dave"}}\r\n`));
+      stream.write(`{"data": {"test":"dave"}}\r\n`, 'utf8');
+      stream.destroy();
     });
 
     it('should process a chunk of invalid JSON and emit an stream-error event', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
+      let stream = new PassThroughStream();
+      let client = new JParseStream();
+      stream.pipe(client);
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
       client.on('stream-error', () => done());
-      client.processChunk(Buffer.from(`{"data": "test":"dave"}}\r\n`));
+      stream.write(`{"data": "test":"dave"}}\r\n`);
+      stream.destroy();
     });
 
     it('should process a chunk of error JSON and emit an stream-error event', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
+      let stream = new PassThroughStream();
+      let client = new JParseStream();
+      stream.pipe(client);
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
-      client.on('stream-error', () => done());
-      client.processChunk(Buffer.from(`{"errors": {"test":"dave"}}\r\n`));
+      client.on('api-errors', () => done());
+      stream.write(`{"errors": {"test":"dave"}}\r\n`);
+      stream.destroy();
     });
 
     it('should process a chunk of unknown JSON and emit an stream-error event', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
+      let stream = new PassThroughStream();
+      let client = new JParseStream();
+      stream.pipe(client);
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
       client.on('stream-error', (e) => done(e));
       client.on('other', () => done());
-      client.processChunk(Buffer.from(`{"other": {"test":"dave"}}\r\n`));
+      stream.write(`{"other": {"test":"dave"}}\r\n`);
+      stream.destroy();
     });
 
     it('should process a heartneat and emit a heartbeat event', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
+      let stream = new PassThroughStream();
+      let client = new JParseStream();
+      stream.pipe(client);
       client.on('tweet', () => done(new Error('Should not emit a tweet')));
       client.on('stream-error', (e) => done(e));
       client.on('heartbeat', () => done());
-      client.processChunk(Buffer.from(`\r\n`));
-    });
-  });
-
-  describe('#flush()', function() {
-    it('should process any remaining data in the chunk buffer and emit any events', function(done) {
-      let client = new StreamClient({token: 'abcdef'});
-      client.chunkBuffer = Buffer.from(`{"data": {"test":"dave"}}\r\n`);
-      client.on('tweet', () => done());
-      client.on('error', (e) => done(e));
-      client.flush();
+      stream.write(`\r\n`);
+      stream.destroy();
     });
   });
 
@@ -61,6 +67,7 @@ describe('StreamClient', function() {
       client.on('close', () => done());
       client.buildStreamPromise(response_mock).catch((e) => done(e));
       setTimeout(() => client.disconnect(), 1000);
+      stream.destroy();
     });
 
     it('should emit close when the response stream is destroyed', function(done) {
@@ -70,6 +77,7 @@ describe('StreamClient', function() {
       client.on('close', () => done());
       client.buildStreamPromise(response_mock).catch((e) => done(e));
       setTimeout(() => stream.destroy(), 1000);
+      stream.destroy();
     });
 
     it('should emit tweet without a timeout when it is streamed in', function(done) {
@@ -77,7 +85,7 @@ describe('StreamClient', function() {
       let stream = new PassThroughStream();
       let response_mock = { data: stream };
       client.on('tweet', () => done());
-      client.buildStreamPromise(response_mock).catch(() => done(e));
+      client.buildStreamPromise(response_mock).catch((e) => done(e));
       stream.write(`{"data":{"test":"dave"}}\r\n`);
       stream.destroy();
     });
