@@ -106,6 +106,7 @@ function rateLimiting(resp, last_retry) {
  * @fires StreamClient#disconnected
  * @fires StreamClient#close
  * @fires StreamClient#stream-error
+ * @fires StreamClient#api-errors
  * @fires StreamClient#heartbeat
  * @fires StreamClient#other
  */
