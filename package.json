@@ -1,6 +1,6 @@
 {
   "name": "twitv2-stream",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Streaming from v2 twitter API",
   "main": "index.js",
   "scripts": {
@@ -30,5 +30,6 @@
     "eslint-plugin-mocha": "^8.0.0",
     "jsdoc": "^3.6.6",
     "mocha": "^8.2.1"
-  }
+  },
+  "types": "./types.d.ts"
 }
