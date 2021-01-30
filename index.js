@@ -147,8 +147,7 @@ class StreamClient extends EventEmitter {
           this.emit('reconnect', request_error, timeout_wait);
           await sleep(timeout_wait);
         } else {
-          let error = new Error(`${request_error.message}`);
-          return Promise.reject(error);
+          return Promise.reject(request_error);
         }
       }
 
