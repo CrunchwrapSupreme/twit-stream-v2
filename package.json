@@ -1,6 +1,6 @@
 {
   "name": "twitv2-stream",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Streaming from v2 twitter API",
   "main": "index.js",
   "scripts": {
