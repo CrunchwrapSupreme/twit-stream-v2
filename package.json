@@ -22,13 +22,13 @@
   },
   "homepage": "https://crunchwrapsupreme.github.io/twit-stream-v2/index.html",
   "dependencies": {
-    "axios": "^0.20.0"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "docdash": "^1.2.0",
     "eslint": "^7.11.0",
     "eslint-plugin-mocha": "^8.0.0",
     "jsdoc": "^3.6.6",
-    "mocha": "^8.2.0"
+    "mocha": "^8.2.1"
   }
 }
