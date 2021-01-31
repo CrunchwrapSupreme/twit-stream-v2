@@ -1,6 +1,6 @@
 /* eslint-disable max-lines-per-function */
 /* eslint-disable func-names */
-const StreamClient = require('../index');
+const StreamClient = require('../lib/stream_client');
 const PassThroughStream = require('stream').PassThrough;
 
 describe('StreamClient', function() {
