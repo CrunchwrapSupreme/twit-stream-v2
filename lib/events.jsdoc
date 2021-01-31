@@ -42,8 +42,3 @@
  * Triggered when manually disconnecting client stream
  * @event StreamClient#disconnected
  */
-
-/**
- * Triggered upon stream close
- * @event StreamClient#close
- */

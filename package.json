@@ -4,7 +4,7 @@
   "description": "Streaming from v2 twitter API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --ui bdd",
     "build:docs": "jsdoc -c .jsdoc.json"
   },
   "keywords": [
@@ -22,7 +22,8 @@
   },
   "homepage": "https://crunchwrapsupreme.github.io/twit-stream-v2/index.html",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "dev-null-stream": "^0.0.1"
   },
   "devDependencies": {
     "docdash": "^1.2.0",

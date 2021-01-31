@@ -1,7 +1,10 @@
+const DevNull = require('dev-null-stream')
 const axios = require('axios');
 const EventEmitter = require('events');
 const TweetParser = require('./lib/parse_stream');
-const { finished } = require('stream');
+const http = require('http');
+const https = require('https');
+const { pipeline } = require('stream/promises');
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000;
 const DATA_TIMEOUT = 30000;
 
@@ -83,7 +86,6 @@ function rateLimiting(resp, last_retry) {
  * @fires StreamClient#connected
  * @fires StreamClient#reconnect
  * @fires StreamClient#disconnected
- * @fires StreamClient#close
  * @fires StreamClient#stream-error
  * @fires StreamClient#api-errors
  * @fires StreamClient#heartbeat
@@ -111,8 +113,8 @@ class StreamClient extends EventEmitter {
    * Connect to twitter stream and emit events.
    * @param {Object} config Configuration for connection
    * @param {number} config.params Set any filter parameters for stream, etc.
-   * @param {string} config.max_reconnects Specify max number of reconnects. Default: -1 (infinity)
-   * @returns {(Promise<object>|Promise<Error>)} Promise that resolves on [disconnect]{@link StreamClient#disconnect}
+   * @param {number} config.max_reconnects Specify max number of reconnects. Default: -1 (infinity)
+   * @returns {(Promise<void>)} Promise that resolves on [disconnect]{@link StreamClient#disconnect}
    * -- the Promise rejects if the number of reconnects exceeds the max or an irrecoverable error occurs
    * -- the Promise resolves with that last error returned. Error object defines .reconnects if reconnects are exceeded
    * @see retriableStatus
@@ -124,37 +126,32 @@ class StreamClient extends EventEmitter {
 
     while(max_reconnects === -1 || reconnects <= max_reconnects)
     {
-      let disconnected = false;
-      try
-      {
-        reconnects += 1;
-        disconnected = await this.buildConnection(params, writeable_stream);
-
-        if(disconnected) {
-          Promise.resolve();
-        }
-      }
-      catch(request_error)
-      {
-        last_error = request_error;
+      reconnects += 1;
+      this.params = params;
+      this.max_reconnects = max_reconnects;
+      try {
+        await this.buildConnection(this.params, writeable_stream);
+      } catch(request_error) {
         let resp = request_error.response;
         if(axios.isCancel(request_error)) {
           return Promise.resolve();
-        } else if(max_reconnects !== -1 && reconnects >= max_reconnects) {
-          break;
         } else if(isTimedout(request_error) || resp && retriableStatus(resp)) {
           let timeout_wait = rateLimiting(resp, last_try);
           this.emit('reconnect', request_error, timeout_wait);
-          await sleep(timeout_wait);
+          if(!this.skip_sleep) {
+            await sleep(timeout_wait);
+          }
         } else {
           return Promise.reject(request_error);
         }
       }
-
       last_try = Date.now();
     }
 
-    let reject_error = new Error(`Max reconnects exceeded (${reconnects}):\n${last_error.message}`);
+    let reject_error = new Error({
+      message: `Max reconnects exceeded (${reconnects})`,
+      wrapped_error: last_error
+    })
     reject_error.reconnects = reconnects;
     return Promise.reject(reject_error);
   }
@@ -164,11 +161,14 @@ class StreamClient extends EventEmitter {
    * @returns {boolean} Returns true if there is a request to disconnect
    */
   disconnect() {
+    this.emit('disconnected');
     if(this.cancelToken) {
       this.cancelToken.cancel('Disconnecting stream');
       this.cancelToken = null;
+      return true;
+    } else {
+      return false;
     }
-    this.emit('disconnected');
   }
 
   /**
@@ -177,54 +177,32 @@ class StreamClient extends EventEmitter {
    * @returns {Promise} Promise that initiates HTTP streaming
    */
   buildStreamPromise(resp, writable_stream) {
-    return new Promise((resolve, reject) => {
-      this.emit('connected');
-      let error;
-      let disconnected = false;
-      let hose = resp.data;
-      const timer = setTimeout(() => {
-        const e = new Error(`Timed out after ${this.stream_timeout / 1000} seconds of no data`);
-        e.isTimeout = true;
-        hose.emit('error', e);
-      }, this.stream_timeout);
-      const jsonStream = hose.pipe(new TweetParser({
-        emitter: this,
-        timer: timer
-      }));
-      const streams = [hose, jsonStream];
-      if(writable_stream) {
-        streams.push(jsonStream.pipe(writable_stream));
-      }
-      const s_cleanup_fns = streams.map((s) => {
-        return finished(s, (err) => {
-          if(!s.destroyed) {
-            s.destroy(err);
-          }
-        });
-      });
-      const stream_cleanup = () => s_cleanup_fns.forEach((fn) => fn());
-      const disconnect_cb = () => {
-        disconnected = true;
-        hose.destroy();
-      };
-      this.once('disconnected', disconnect_cb);
-      hose.on('close', () => {
-        clearTimeout(timer);
-        stream_cleanup();
-        this.removeListener('disconnected', disconnect_cb)
-        if(!error) {
-          this.emit('close');
-          resolve(disconnected);
-        }
-      });
-      hose.on('error', stream_error => {
-        error = stream_error;
-        if(!hose.destroyed) {
-          hose.destroy(error);
-        }
-        reject(error);
-      });
+    const hose = resp.data;
+    const timer = setTimeout(() => {
+      const e = new Error(`Timed out after ${this.stream_timeout / 1000} seconds of no data`);
+      e.isTimeout = true;
+      hose.destroy(e);
+      clearTimeout(timer);
+    }, this.stream_timeout);
+    const jsonStream = new TweetParser({
+      emitter: this,
+      timer: timer
     });
+    const streams = [hose, jsonStream];
+    if(writable_stream) {
+      streams.push(writable_stream);
+    } else {
+      streams.push(new DevNull());
+    }
+    let listener = () => {
+      hose.end();
+    }
+
+    this.once('disconnected', listener);
+    let thicc = pipeline(...streams);
+    thicc.finally(() => clearTimeout(timer));
+    this.emit('connected');
+    return thicc;
   }
 
   /**
@@ -234,7 +212,9 @@ class StreamClient extends EventEmitter {
    * -- the Promise chain is unhandled so consider using [.connect]{@link StreamClient#connect}
    */
   buildConnection(params, writable_stream) {
-    this.disconnect();
+    if(this.cancelToken) {
+      this.disconnect();
+    }
     this.cancelToken = axios.CancelToken.source();
 
     let streamReq = this.twitrClient.get('tweets/sample/stream', {
@@ -242,6 +222,10 @@ class StreamClient extends EventEmitter {
       cancelToken: this.cancelToken.token,
       params: params,
       decompress: true,
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
+      timeout: 0,
+      maxContentLength: Infinity,
     });
 
     return streamReq.then((resp) => {
