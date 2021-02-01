@@ -1,8 +1,4 @@
-# **:triangular_flag_on_post: TWIT-STREAM** (version 1.0.0)
-
-
-> Streaming from v2 twitter API
-
+![Node.js CI Test](https://github.com/CrunchwrapSupreme/twit-stream-v2/workflows/Node.js%20CI/badge.svg)
 ---
 
 ## **Documentation**
@@ -10,13 +6,13 @@
 
 ---
 
-## **:package: Main tools used**
+## **Main tools used**
 
 - [x] axios
 
 ---
 
-## **:wrench: Developer usage**
+## **Developer usage**
 
 - [x] eslint
 - [x] mocha
@@ -45,7 +41,7 @@ npm test
 ---
 
 
-## **:handshake: Contributing**
+## **Contributing**
 
 - Fork it!
 - Create your feature branch: `git checkout -b my-new-feature`
@@ -57,15 +53,15 @@ npm test
 
 
 
-### **:heart: Show your support**
+### **Show your support**
 
-Please :star: this repository if you like it or this project helped you!\
+Please star this repository if you like it or this project helped you!\
 Feel free to open issues or submit pull-requests to help me improving my work.
 
 
 ---
 
-### **:robot: Author**
+### **Author**
 
 _*David Young*_
 
