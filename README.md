@@ -1,4 +1,5 @@
 ![Node.js CI Test](https://github.com/CrunchwrapSupreme/twit-stream-v2/workflows/Node.js%20CI/badge.svg)
+[![npm version](https://badge.fury.io/js/twitv2-stream.svg)](https://badge.fury.io/js/twitv2-stream)
 ---
 
 ## **Documentation**
