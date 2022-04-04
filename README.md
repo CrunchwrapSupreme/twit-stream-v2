@@ -1,6 +1,7 @@
 ![Node.js CI Test](https://github.com/CrunchwrapSupreme/twit-stream-v2/workflows/Node.js%20CI/badge.svg)
 [![npm version](https://badge.fury.io/js/twitv2-stream.svg)](https://badge.fury.io/js/twitv2-stream)
 [![install size](https://packagephobia.com/badge?p=twitv2-stream)](https://packagephobia.com/result?p=twitv2-stream)
+![npm](https://img.shields.io/npm/dt/twitv2-stream)
 ---
 
 ## **Documentation**
@@ -30,7 +31,7 @@
 
 ### **Installation**
 
-In order to install the project and all dependencies, enter in the project folder and run `npm install`
+In order to install the project and all dependencies, enter in the project folder and run `npm install` or add to package.json as `twitv2-stream`
 
 ---
 
