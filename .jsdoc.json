@@ -1,6 +1,7 @@
 {
   "source": {
     "include": [
+      "./lib/stream_client.js",
       "./lib/parse_stream.js",
       "./lib/events.jsdoc",
       "./index.js",
