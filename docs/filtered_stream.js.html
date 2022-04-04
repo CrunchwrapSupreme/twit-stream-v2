@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>filtered_stream.js - Documentation</title>
     
     <meta name="description" content="Implementation of the v2 twitter streaming api" />
     
@@ -40,85 +40,88 @@
 
 <div id="main">
     
+    <h1 class="page-title">filtered_stream.js</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const StreamClient = require('./stream_client');
+const DATA_TIMEOUT = 30000;
+const RULES_TIMEOUT = 5000;
 
+/**
+ * Client for interfacing with filtered stream API
+ */
+class FilteredStream extends StreamClient {
+  constructor({token, timeout = DATA_TIMEOUT, stream_timeout = DATA_TIMEOUT}) {
+    super({
+      token: token,
+      timeout: timeout,
+      stream_timeout: stream_timeout
+    });
+    this.url = 'tweets/search/stream';
+  }
 
-    <section class="package">
-        <h3> </h3>		
-    </section>
+  /**
+   * Add rule for filtered stream
+   */
+  addRule(rules) {
+    let data = { add: rules };
+    return this.twitrClient.post('/tweets/search/stream/rules', data, {
+      timeout: RULES_TIMEOUT,
+      responseType: 'json'
+    });
+  }
 
+  /**
+   * Clear rules for filtered stream
+   */
+  async clearRules() {
+    let res = await this.rules();
+    if(res.data &amp;&amp; 'data' in res.data) {
+      const has_id = (e) => { return 'id' in e; }
+      let data = res.data.data;
+      if(!Array.isArray(data) || !data.every(has_id)) {
+        return Promise.reject(res);
+      }
+      let rules = data.map((r) => r.id);
+      return this.deleteRules(rules);
+    } else {
+      return Promise.reject(res)
+    }
+  }
 
+  /**
+   * List rules for filtered stream
+   */
+  rules() {
+    return this.twitrClient.get('/tweets/search/stream/rules', {
+      timeout: RULES_TIMEOUT,
+      responseType: 'json'
+    });
+  }
 
+  /**
+   * Delete rules for filtered stream
+   */
+  deleteRules(ruleids) {
+    let data = { delete: { ids: ruleids } };
+    return this.twitrClient.post('/tweets/search/stream/rules', data, {
+      timeout: RULES_TIMEOUT,
+      responseType: 'json'
+    });
+  }
+}
 
-
-
-
-
-
-    
-
-
-
-    <section class="readme usertext">
-        <article><h2><img src="https://github.com/CrunchwrapSupreme/twit-stream-v2/workflows/Node.js%20CI/badge.svg" alt="Node.js CI Test">
-<a href="https://badge.fury.io/js/twitv2-stream"><img src="https://badge.fury.io/js/twitv2-stream.svg" alt="npm version"></a>
-<a href="https://packagephobia.com/result?p=twitv2-stream"><img src="https://packagephobia.com/badge?p=twitv2-stream" alt="install size"></a>
-<img src="https://img.shields.io/npm/dt/twitv2-stream" alt="npm"></h2>
-<h2><strong>Documentation</strong></h2>
-<ul>
-<li><a href="https://crunchwrapsupreme.github.io/twit-stream-v2/index.html">API Documentation</a></li>
-</ul>
-<hr>
-<h2><strong>Main tools used</strong></h2>
-<ul>
-<li>[x] axios</li>
-</ul>
-<hr>
-<h2><strong>Developer usage</strong></h2>
-<ul>
-<li>[x] eslint</li>
-<li>[x] mocha</li>
-<li>[x] jsdoc</li>
-<li>[x] docdash</li>
-</ul>
-<h3><strong>Set up project</strong></h3>
-<ul>
-<li>Choose a folder project in your system and switch in <code>cd [folder path]</code></li>
-<li>Clone the repo in your folder path</li>
-</ul>
-<hr>
-<h3><strong>Installation</strong></h3>
-<p>In order to install the project and all dependencies, enter in the project folder and run <code>npm install</code> or add to package.json as <code>twitv2-stream</code></p>
-<hr>
-<h3>Test the project</h3>
-<pre class="prettyprint source lang-bash"><code>npm test
+module.exports = FilteredStream;
 </code></pre>
-<hr>
-<h2><strong>Contributing</strong></h2>
-<ul>
-<li>Fork it!</li>
-<li>Create your feature branch: <code>git checkout -b my-new-feature</code></li>
-<li>Commit your changes: <code>git commit -am 'Add some feature'</code></li>
-<li>Push to the branch: <code>git push origin my-new-feature</code></li>
-<li>Submit a pull request</li>
-</ul>
-<hr>
-<h3><strong>Show your support</strong></h3>
-<p>Please star this repository if you like it or this project helped you!<br>
-Feel free to open issues or submit pull-requests to help me improving my work.</p>
-<hr>
-<h3><strong>Author</strong></h3>
-<p><em><em>David Young</em></em></p>
-<hr>
-<p>Copyright © 2020 David Young</p></article>
+        </article>
     </section>
-
-
 
 
 

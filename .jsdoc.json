@@ -3,7 +3,8 @@
     "include": [
       "./lib/parse_stream.js",
       "./lib/events.jsdoc",
-      "./index.js"
+      "./index.js",
+      "./lib/filtered_stream.js"
     ]
   },
   "opts": {
